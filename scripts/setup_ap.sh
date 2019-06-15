@@ -73,6 +73,7 @@ sudo ip route add 255.255.255.255 dev $WLAN
 
 
 echo "Starting AP on $WLAN in screen terminal..."
+pkill wpa_supplicant
 sudo hostapd /etc/hostapd/hostapd.conf
 
 if test -d /etc/NetworkManager; then
