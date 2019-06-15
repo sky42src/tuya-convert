@@ -1,4 +1,8 @@
 #!/bin/bash
+
+SCRIPT=`readlink -f $0`
+WHERE=`dirname ${SCRIPT}`
+
 bold=$(tput bold)
 normal=$(tput sgr0)
 screen_minor=`screen --version | cut -d . -f 2`
@@ -65,10 +69,22 @@ popd
 echo "Waiting for the upgraded device to appear"
 echo "If this does not work have a look at the '*.log'-files in the 'scripts' subfolder!"
 
+OLD443=$(sudo iptables -nvL INPUT | awk '/tcp dpt:443/''{ print $1 }')
 while ! timeout 0.2 ping -c 1 -n 10.42.42.42 &> /dev/null
 do
     printf "."
-	sleep 1
+    sleep 1
+    NEW443=$(sudo iptables -nvL INPUT | awk '/tcp dpt:443/''{ print $1 }')
+    if [ $NEW443 -gt $OLD443 ]; then
+        echo ""
+        echo "ERROR: Sorry your device is talking https"
+        echo "       and that probably means your firmware"
+        echo "       is too new to be changed by tuya convert"
+        echo ""
+        echo "Stoping tuya convert"
+        ${WHERE}/stop_flash.sh
+        exit 1
+    fi
 done
 
 echo

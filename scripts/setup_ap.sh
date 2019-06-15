@@ -60,6 +60,11 @@ sudo iptables --delete-chain
 sudo iptables --table nat --delete-chain
 sudo iptables --table nat --append POSTROUTING --out-interface $ETH -j MASQUERADE
 sudo iptables --append FORWARD --in-interface $WLAN -j ACCEPT
+# these rule are just for accounting, so that scripts could use the counter as indicator
+sudo iptables --append INPUT --in-interface $WLAN --source 10.42.42.0/24 --destination 10.42.42.1 --protocol tcp --dport 80  -j ACCEPT
+sudo iptables --append INPUT --in-interface $WLAN --source 10.42.42.0/24 --destination 10.42.42.1 --protocol tcp --dport 443 -j ACCEPT
+sudo iptables --append INPUT --in-interface $WLAN --source 10.42.42.0/24 --destination 10.42.42.1 --protocol udp --dport 53  -j ACCEPT
+sudo iptables --append INPUT --in-interface $WLAN --source 10.42.42.0/24 --destination 10.42.42.1 --protocol tcp --dport 53  -j ACCEPT
 
 echo "Starting DNSMASQ server..."
 sudo /etc/init.d/dnsmasq stop > /dev/null 2>&1
