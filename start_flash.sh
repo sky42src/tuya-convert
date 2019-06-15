@@ -95,7 +95,7 @@ curl -JO http://10.42.42.42/backup
 
 echo "======================================================"
 echo "Getting Info from IoT-device"
-curl http://10.42.42.42 2> /dev/null | tee device-info.txt
+curl http://10.42.42.42 2> /dev/null | tee -a device-info.txt
 echo 
 echo "======================================================"
 echo "Please make sure to note the correct SPI flash mode!"
