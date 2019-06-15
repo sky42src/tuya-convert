@@ -1,5 +1,8 @@
 #!/bin/sh
 
+SCRIPT=`readlink -f $0`
+WHERE=`dirname ${SCRIPT}`
+
 # Source config
 . ../config.txt
 
@@ -25,6 +28,7 @@ DNSMASQ="--no-resolv
          --dhcp-range=10.42.42.10,10.42.42.40,12h
          --server=9.9.9.9
          --server=1.1.1.1
+         --log-queries --log-facility=${WHERE}/smarthack-dnsmasq.log
          --address=/tuya.com/10.42.42.1
          --address=/tuyaeu.com/10.42.42.1
          --address=/tuyaus.com/10.42.42.1
@@ -61,6 +65,7 @@ echo "Starting DNSMASQ server..."
 sudo /etc/init.d/dnsmasq stop > /dev/null 2>&1
 sudo pkill dnsmasq
 sudo dnsmasq $DNSMASQ
+sudo chmod o+r ${WHERE}/smarthack-dnsmasq.log
 
 sudo sysctl -w net.ipv4.ip_forward=1 > /dev/null 2>&1
 
