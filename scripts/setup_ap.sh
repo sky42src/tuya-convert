@@ -20,27 +20,15 @@ if test -d /etc/NetworkManager; then
 fi
 sudo ifconfig $WLAN up
 
-echo "Backing up /etc/dnsmasq.conf..."
-sudo cp /etc/dnsmasq.conf /etc/dnsmasq.conf.backup
-
-
-echo "Writing dnsmasq config file..."
-echo "Creating new /etc/dnsmasq.conf..."
-cat <<- EOF >/etc/dnsmasq.conf
-	# disables dnsmasq reading any other files like /etc/resolv.conf for nameservers
-	no-resolv
-	# Interface to bind to
-	interface=$WLAN
-	#Specify starting_range,end_range,lease_time
-	dhcp-range=10.42.42.10,10.42.42.40,12h
-	# dns addresses to send to the clients
-	server=9.9.9.9
-	server=1.1.1.1
-	address=/tuya.com/10.42.42.1
-	address=/tuyaeu.com/10.42.42.1
-	address=/tuyaus.com/10.42.42.1
-	address=/tuyacn.com/10.42.42.1
-EOF
+DNSMASQ="--no-resolv
+         --interface=$WLAN
+         --dhcp-range=10.42.42.10,10.42.42.40,12h
+         --server=9.9.9.9
+         --server=1.1.1.1
+         --address=/tuya.com/10.42.42.1
+         --address=/tuyaeu.com/10.42.42.1
+         --address=/tuyaus.com/10.42.42.1
+         --address=/tuyacn.com/10.42.42.1"
 
 echo "Writing hostapd config file..."
 cat <<- EOF >/etc/hostapd/hostapd.conf
@@ -72,7 +60,7 @@ sudo iptables --append FORWARD --in-interface $WLAN -j ACCEPT
 echo "Starting DNSMASQ server..."
 sudo /etc/init.d/dnsmasq stop > /dev/null 2>&1
 sudo pkill dnsmasq
-sudo dnsmasq
+sudo dnsmasq $DNSMASQ
 
 sudo sysctl -w net.ipv4.ip_forward=1 > /dev/null 2>&1
 
@@ -89,9 +77,6 @@ if test -d /etc/NetworkManager; then
 fi
 sudo /etc/init.d/dnsmasq stop > /dev/null 2>&1
 sudo pkill dnsmasq
-sudo rm /etc/dnsmasq.conf > /dev/null 2>&1
-sudo mv /etc/dnsmasq.conf.backup /etc/dnsmasq.conf > /dev/null 2>&1
-sudo rm /etc/dnsmasq.hosts > /dev/null 2>&1
 sudo iptables --flush
 sudo iptables --flush -t nat
 sudo iptables --delete-chain
